@@ -14,6 +14,14 @@ variable "dcos_version" {
   default     = "1.13.3"
 }
 
+variable "dcos_s3_bucket" {
+  description = "bucket to use for exhibitor"
+}
+
+variable "dcos_s3_prefix" {
+  description = "prefix to use for exhibitor backup keys"
+}
+
 variable "cluster_name" {
   description = "Name of the DC/OS cluster"
   default     = "starfleet-red"
@@ -85,10 +93,13 @@ variable "security_group_ids" {
   type        = "list"
 }
 
-variable "aws_ami" {
+variable "aws_ami_id" {
   default = ""
 }
 
+variable "aws_key_name" {
+  default = ""
+}
 ////////////////////////////////////////////
 /////////////// END VARIABLES //////////////
 ////////////////////////////////////////////

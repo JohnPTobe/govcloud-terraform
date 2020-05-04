@@ -1,13 +1,5 @@
 provider "aws" { region = "us-gov-west-1" }
 
-// create a ssh-key-pair.
-resource "aws_key_pair" "deployer" {
-  provider = "aws"
-
-  key_name   = "${var.cluster_name}-deployer-key"
-  public_key = "${var.ssh_public_key}"
-}
-
 // select our default VPC.
 // https://www.terraform.io/docs/providers/aws/d/vpc.html
 data "aws_vpc" "Logic_B_Processing" {
@@ -33,7 +25,7 @@ data "aws_subnet_ids" "default_subnets" {
 // or drop a modules it is easier to change just the local variable instead
 // of all other references
 locals {
-  key_name     = "${aws_key_pair.deployer.key_name}"
+  key_name     = "${var.aws_key_name}"
   vpc_id       = "${data.aws_vpc.Logic_B_Processing.id}"
   subnet_range = "${data.aws_vpc.Logic_B_Processing.cidr_block}"
   subnet_ids   = ["${data.aws_subnet_ids.default_subnets.ids}"]
@@ -96,7 +88,8 @@ module "dcos-bootstrap-instance" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.bootstrap_instance_type}"
-  aws_ami				 = "${var.aws_ami}"
+  aws_ami				 = "${var.aws_ami_id}"
+  dcos_instance_os = "centos_7.6"
 
   tags = "${var.tags}"
 }
@@ -117,7 +110,8 @@ module "dcos-master-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.master_instance_type}"
-  aws_ami				 = "${var.aws_ami}"
+  aws_ami				 = "${var.aws_ami_id}"
+  dcos_instance_os = "centos_7.6"
 
   num_masters = "${var.num_masters}"
 
@@ -140,7 +134,8 @@ module "dcos-privateagent-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.private_instance_type}"
-  aws_ami				 = "${var.aws_ami}"
+  aws_ami				 = "${var.aws_ami_id}"
+  dcos_instance_os = "centos_7.6"
 
   num_private_agents = "${var.num_private_agents}"
 
@@ -163,7 +158,8 @@ module "dcos-publicagent-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.public_instance_type}"
-  aws_ami				 = "${var.aws_ami}"
+  aws_ami				 = "${var.aws_ami_id}"
+  dcos_instance_os = "centos_7.6"
 
   num_public_agents = "${var.num_public_agents}"
 
@@ -276,6 +272,7 @@ module "dcos-install" {
   # DC/OS options
   dcos_cluster_name = "${var.cluster_name}"
   dcos_version      = "${var.dcos_version}"
+  custom_dcos_download_path  = "https://downloads.dcos.io/dcos/stable/1.13.9/dcos_generate_config.sh"
 
   dcos_ip_detect_public_contents = <<EOF
 #!/bin/sh
@@ -302,8 +299,10 @@ EOF
 
   dcos_variant                   = "${var.dcos_type}"
   dcos_license_key_contents      = "${var.dcos_license_key_contents}"
-  dcos_master_discovery          = "static"
-  dcos_exhibitor_storage_backend = "static"
+  dcos_master_discovery          = "master_http_loadbalancer"
+  dcos_exhibitor_storage_backend = "aws_s3"
+  dcos_s3_bucket                 = "${var.dcos_s3_bucket}"
+  dcos_s3_prefix                 = "${var.dcos_s3_prefix}"
 }
 
 output "masters_dns_name" {
