@@ -1,4 +1,4 @@
-provider "aws" {}
+provider "aws" { region = "us-gov-west-1" }
 
 // create a ssh-key-pair.
 resource "aws_key_pair" "deployer" {
@@ -96,6 +96,7 @@ module "dcos-bootstrap-instance" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.bootstrap_instance_type}"
+  aws_ami				 = "${var.aws_ami}"
 
   tags = "${var.tags}"
 }
@@ -116,6 +117,7 @@ module "dcos-master-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.master_instance_type}"
+  aws_ami				 = "${var.aws_ami}"
 
   num_masters = "${var.num_masters}"
 
@@ -138,6 +140,7 @@ module "dcos-privateagent-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.private_instance_type}"
+  aws_ami				 = "${var.aws_ami}"
 
   num_private_agents = "${var.num_private_agents}"
 
@@ -160,6 +163,7 @@ module "dcos-publicagent-instances" {
   aws_security_group_ids = ["${local.instance_security_groups}"]
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.public_instance_type}"
+  aws_ami				 = "${var.aws_ami}"
 
   num_public_agents = "${var.num_public_agents}"
 
@@ -223,6 +227,7 @@ module "dcos-lb" {
 
   num_masters       = "${var.num_masters}"
   num_public_agents = "${var.num_public_agents}"
+  internal = "true"
 
   tags = "${var.tags}"
 }
