@@ -15,10 +15,10 @@ vpc_id = "vpc-6c303708"
 subnet_tags = {
     development = "MACE"
   }
-bootstrap_instance_type = "m2.Medium"
+bootstrap_instance_type = "t2.medium"
 security_group_ids = ["sg-cb73bcb2"]
 
-aws_ami_id = "ami-0f91f36e"
+aws_ami_id = "ami-5a740e3b"
 dcos_exhibitor_storage_backend = "aws_s3"
-dcos_s3_bucket = "starfleet-exhibitor-red"
+dcos_s3_bucket = "starfleet-exhibitor"
 dcos_s3_prefix = "red"

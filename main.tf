@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket         = "starfleet-terraform"
+    key            = "red/terraform.tfstate"
+    region         = "us-gov-west-1"
+  }
+}
+
 provider "aws" { region = "us-gov-west-1" }
 
 // select our default VPC.
@@ -89,7 +97,9 @@ module "dcos-bootstrap-instance" {
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.bootstrap_instance_type}"
   aws_ami				 = "${var.aws_ami_id}"
-  dcos_instance_os = "centos_7.6"
+  dcos_instance_os		 = "rhel_7.6"
+  aws_root_volume_type   = "gp2"
+  aws_root_volume_size   = "50"
 
   tags = "${var.tags}"
 }
@@ -111,7 +121,8 @@ module "dcos-master-instances" {
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.master_instance_type}"
   aws_ami				 = "${var.aws_ami_id}"
-  dcos_instance_os = "centos_7.6"
+  dcos_instance_os		 = "rhel_7.6"
+  aws_root_volume_size   = "50"
 
   num_masters = "${var.num_masters}"
 
@@ -135,7 +146,9 @@ module "dcos-privateagent-instances" {
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.private_instance_type}"
   aws_ami				 = "${var.aws_ami_id}"
-  dcos_instance_os = "centos_7.6"
+  dcos_instance_os 		 = "rhel_7.6"
+  aws_root_volume_type   = "gp2"
+  aws_root_volume_size   = "100"
 
   num_private_agents = "${var.num_private_agents}"
 
@@ -159,7 +172,9 @@ module "dcos-publicagent-instances" {
   aws_key_name           = "${local.key_name}"
   aws_instance_type      = "${var.public_instance_type}"
   aws_ami				 = "${var.aws_ami_id}"
-  dcos_instance_os = "centos_7.6"
+  dcos_instance_os 		 = "rhel_7.6"
+  aws_root_volume_type   = "gp2"
+  aws_root_volume_size   = "100"
 
   num_public_agents = "${var.num_public_agents}"
 
@@ -303,6 +318,9 @@ EOF
   dcos_exhibitor_storage_backend = "aws_s3"
   dcos_s3_bucket                 = "${var.dcos_s3_bucket}"
   dcos_s3_prefix                 = "${var.dcos_s3_prefix}"
+  dcos_aws_template_upload		 = "true"
+  dcos_aws_template_storage_bucket = "jtobe"
+  dcos_aws_template_storage_region_name = "us-gov-west-1"
 }
 
 output "masters_dns_name" {

@@ -73,19 +73,19 @@ variable "subnet_tags" {
 }
 
 variable "bootstrap_instance_type" {
-  default = "m2.Medium"
+  default = "t2.medium"
 }
 
 variable "master_instance_type" {
-  default = "m2.Medium"
+  default = "t2.medium"
 }
 
 variable "public_instance_type" {
-  default = "m2.Medium"
+  default = "t2.medium"
 }
 
 variable "private_instance_type" {
-  default = "m2.Medium"
+  default = "t2.medium"
 }
 
 variable "security_group_ids" {
